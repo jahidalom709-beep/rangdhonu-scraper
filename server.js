@@ -11,8 +11,18 @@ app.get('/stream', async (req, res) => {
     let browser;
     try {
         browser = await puppeteer.launch({
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null,
-            args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process', '--no-zygote']
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
+            headless: 'new',
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-accelerated-2d-canvas',
+                '--disable-gpu',
+                '--no-first-run',
+                '--no-zygote',
+                '--single-process'
+            ]
         });
 
         const page = await browser.newPage();
@@ -27,7 +37,7 @@ app.get('/stream', async (req, res) => {
             }
         });
 
-        await page.goto(`https://rangdhonu.live/watch?v=${channel}`, { waitUntil: 'networkidle2', timeout: 30000 });
+        await page.goto(`https://rangdhonu.live/watch?v=${channel}`, { waitUntil: 'domcontentloaded', timeout: 25000 });
 
         setTimeout(async () => {
             if (!streamUrlFound) {
